@@ -1028,6 +1028,26 @@
             page += 1;
           }
           data = { results, total };
+          // Deduplicate results (defensive): sometimes paging can return overlapping documents
+          // if sort order is not fully deterministic. Remove exact duplicate IDs here so the
+          // UI doesn't render repeated cards when "All" is selected.
+          if (Array.isArray(data.results)) {
+            const seen = new Set();
+            const unique = [];
+            for (const item of data.results) {
+              const key = String(item && (item._id || item.id || item.name || JSON.stringify(item)));
+              if (!seen.has(key)) {
+                seen.add(key);
+                unique.push(item);
+              }
+            }
+            const duplicates = data.results.length - unique.length;
+            if (duplicates > 0) {
+              console.warn(`Removed ${duplicates} duplicate recipes while fetching all pages`);
+            }
+            data.results = unique;
+            data.total = typeof data.total === 'number' ? data.total : unique.length;
+          }
         } else {
           // Normal single-page fetch with chosen limit
           const lim = Math.max(1, Math.min(100, parseInt(pageSizeVal, 10) || 25));

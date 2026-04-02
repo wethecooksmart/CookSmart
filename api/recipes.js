@@ -140,8 +140,11 @@ router.get('/', async (req, res) => {
     const lim = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
     const skip = (pageNum - 1) * lim;
 
+    // Add deterministic secondary sort by _id to ensure stable pagination and avoid overlapping
+    // results when multiple documents share the same createdAt value.
+    const sortObj = { createdAt: -1, _id: -1 };
     const [items, total] = await Promise.all([
-      query.sort({ createdAt: -1 }).skip(skip).limit(lim).lean(),
+      query.sort(sortObj).skip(skip).limit(lim).lean(),
       Recipe.countDocuments(q ? { $text: { $search: q } } : filters)
     ]);
 

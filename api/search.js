@@ -71,8 +71,9 @@ router.get('/', async (req, res) => {
     const lim = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
     const skip = (pageNum - 1) * lim;
 
+    const sortObj = { createdAt: -1, _id: -1 };
     const [results, total] = await Promise.all([
-      query.sort({ createdAt: -1 }).skip(skip).limit(lim).lean(),
+      query.sort(sortObj).skip(skip).limit(lim).lean(),
       (q && q.trim().length > 0)
         ? Recipe.countDocuments({ $text: { $search: q }, ...filters })
         : Recipe.countDocuments(filters)
