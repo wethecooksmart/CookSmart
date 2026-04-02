@@ -637,15 +637,43 @@
     }
 
     /* Ingredient autocomplete suggestions */
-    .ingredient-suggestions{
-      max-width:760px;
-      margin:6px auto 0;
+    .ingredient-input-section .input-group{ /* keep group layout */ }
+    .ingredient-field{ position: relative; display:flex; flex-direction:column; width:100%; }
+
+    .ingredient-field .ingredient-suggestions{
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 6px);
       background: white;
       border-radius:8px;
       box-shadow:0 6px 20px rgba(0,0,0,0.08);
       overflow:hidden;
       display:none;
-      z-index:50;
+      z-index:1000;
+      max-height: 320px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    /* Mobile: place suggestions in normal flow under the input so they appear below the input on small screens */
+    @media (max-width: 640px) {
+      .ingredient-field .ingredient-suggestions {
+        position: static;
+        left: auto;
+        right: auto;
+        top: auto;
+        margin-top: 6px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 8px;
+      }
+      /* ensure the input-group keeps normal vertical spacing on mobile */
+      .ingredient-input-section .input-group {
+        gap: 8px;
+        flex-direction: column;
+      }
+      .ingredient-field{ width:100%; }
     }
     .ingredient-suggestions .item{
       padding:10px 12px;
@@ -736,7 +764,10 @@
         <div class="ingredient-input-section">
           <h3>🥘 What's in your kitchen?</h3>
           <div class="input-group">
-            <input type="text" id="ingredientInput" class="ingredient-input" autocomplete="off" placeholder="Enter an ingredient (e.g., chicken, tomatoes...)" oninput="onIngredientInput(event)" onkeydown="onIngredientKeyDown(event)" onkeypress="handleIngredientKeyPress(event)">
+            <div class="ingredient-field">
+              <input type="text" id="ingredientInput" class="ingredient-input" autocomplete="off" placeholder="Enter an ingredient (e.g., chicken, tomatoes...)" oninput="onIngredientInput(event)" onkeydown="onIngredientKeyDown(event)" onkeypress="handleIngredientKeyPress(event)">
+              <div id="ingredientSuggestions" class="ingredient-suggestions" role="listbox" aria-label="Ingredient suggestions"></div>
+            </div>
             <input type="number" id="quantityInput" class="quantity-input" placeholder="Qty" min="0" step="0.1" onkeypress="handleIngredientKeyPress(event)">
             <select id="unitSelect" class="unit-select" onkeypress="handleIngredientKeyPress(event)">
               <option value="pieces">pieces</option>
@@ -750,9 +781,7 @@
               <option value="tbsp">tbsp</option>
               <option value="tsp">tsp</option>
             </select>
-            <button class="add-ingredient-btn" onclick="addIngredient()">Add</button>
-          </div>
-          <div id="ingredientSuggestions" class="ingredient-suggestions" role="listbox" aria-label="Ingredient suggestions"></div>
+            <div id="ingredientSuggestions" class="ingredient-suggestions" role="listbox" aria-label="Ingredient suggestions"></div>
           </div>
           <div class="auto-search-notice">
             💡 Recipes will appear automatically as you add ingredients
